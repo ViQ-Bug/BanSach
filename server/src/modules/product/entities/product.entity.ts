@@ -14,6 +14,8 @@ export class ProductEntity {
   discount: number;
   @Column()
   stock: number;
+  @Column('text', { nullable: true })
+  description: string
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
   @Column({ nullable: true , default: '' })

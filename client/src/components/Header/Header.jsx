@@ -47,10 +47,40 @@ const Header = () => {
     });
   };
 
-  const fetchCartCount = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartCount(cart.length);
+  const fetchCartCount = async () => {
+    try {
+      // Retrieve the token using js-cookie
+      const token = Cookies.get('token');
+  
+      if (!token) {
+        throw new Error('No token found in cookies');
+      }
+  
+      // Fetch cart data from the API with Authorization header
+      const response = await fetch('http://localhost:8080/cart', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart data');
+      }
+  
+      // Parse the response data
+      const cart = await response.json();
+      console.log("Cart data:", cart);
+  
+      // Calculate the total quantity
+      const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0); 
+      setCartCount(totalQuantity); 
+    } catch (error) {
+      console.error('Error fetching cart data:', error);
+    }
   };
+  
 
   const handleSignOut = () => {
     Cookies.remove("token");
@@ -94,8 +124,6 @@ const Header = () => {
             <button><a href="/signup">Đăng ký</a></button>
           </>
         )}
-        
-        {/* Nút Giỏ Hàng */}
         <div className="relative cursor-pointer" onClick={() => Nav('/cart')}>
           <FaShoppingCart className="text-white text-2xl" />
           {cartCount > 0 && (

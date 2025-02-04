@@ -28,26 +28,24 @@ const SignIn = () => {
         withCredentials: true,
       });
   
+      if (!res.data || !res.data.token) {
+        throw new Error("Không nhận được token từ server");
+      }
+  
       const token = res.data.token;
       const role = res.data.role;
+      Cookies.set("token", token, { expires: 1 }); 
+      Cookies.set("role", role, { expires: 1 });
   
-      Cookies.set("token", token);
-      Cookies.set("role", role);
+      Swal.fire({
+        icon: "success",
+        title: "Đăng nhập thành công",
+      });
   
-      if (role === "Admin") {
-        Nav("/admin");
-        Swal.fire({
-          icon: "success",
-          title: "Chào mừng trở lại",
-        });
-      } else {
-        Nav("/");
-        Swal.fire({
-          icon: "success",
-          title: "Đăng nhập thành công",
-        });
-      }
+      role === "Admin" ? Nav("/admin") : Nav("/");
+      
     } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
       Swal.fire({
         icon: "error",
         title: "Oops...",
